@@ -23,10 +23,13 @@ exports.create = (text, callback) => {
       console.log('Cannot get unique id.');
     } else {
       var filePath = exports.dataDir + `/${id}.txt`;
+      const date = (new Date()).toLocaleTimeString('en-US');
+      text = text + '   Created_at:' + date;
       fs.writeFile(filePath, text, (err) => {
         if (err) {
           console.log('Cannot write file path.');
         } else {
+
           callback(null, {id, text});
         }
       });
@@ -114,9 +117,10 @@ exports.readOne = (id, callback) => {
 
 exports.update = (id, text, callback) => {
   var filePath = exports.dataDir + `/${id}.txt`;
+  var date = (new Date()).toLocaleTimeString('en-US');
   fsPromises.readFile(filePath, {encoding: 'utf8'})
-    .then(oldText => fsPromises.writeFile(filePath, text) )
-    .then (data => callback(null, {id, text}))
+    .then(oldText => fsPromises.writeFile(filePath, text + '   Updated_at:' + date) )
+    .then (data => callback(null, {id, text: text + '   Updated_at:' + date}))
     .catch (err => callback(new Error(`No item with id: ${id}`)));
 
 
