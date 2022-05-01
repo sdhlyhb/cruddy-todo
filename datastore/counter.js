@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const sprintf = require('sprintf-js').sprintf;
 const Promise = require('bluebird');
+const fsPromises = require('fs').promises;
 
 var counter = 0;
 
@@ -17,44 +18,64 @@ const zeroPaddedNumber = (num) => {
 };
 
 const readCounter = (callback) => {
-  fs.readFile(exports.counterFile, (err, fileData) => {
-    if (err) {
-      callback(null, 0);
-    } else {
-      callback(null, Number(fileData));
-    }
-  });
+  fsPromises.readFile(exports.counterFile).then(fileData => callback(null, Number(fileData))).catch(err => callback(null, 0) );
+
+  // fs.readFile(exports.counterFile, (err, fileData) => {
+  //   if (err) {
+  //     callback(null, 0);
+  //   } else {
+  //     callback(null, Number(fileData));
+  //   }
+  // });
 };
 
 const writeCounter = (count, callback) => {
   var counterString = zeroPaddedNumber(count);
-  fs.writeFile(exports.counterFile, counterString, (err) => {
-    if (err) {
-      throw ('error writing counter');
-    } else {
-      callback(null, counterString);
-    }
-  });
+  fsPromises.writeFile(exports.counterFile, counterString)
+    .then(counterString => callback(null, counterString))
+    .catch(err => console.log ('error writing counter') );
+
+
+
+
+
+  // fs.writeFile(exports.counterFile, counterString, (err) => {
+  //   if (err) {
+  //     throw ('error writing counter');
+  //   } else {
+  //     callback(null, counterString);
+  //   }
+  // });
 };
 
 // Public API - Fix this function //////////////////////////////////////////////
 
 exports.getNextUniqueId = (callback) => {
 
-  readCounter((err, counter) => {
-    if (err) {
-      callback(null, 0);
-    } else {
-      writeCounter(counter + 1, (err) => {
-        if (err) {
-          throw ('error writing counter');
-        } else {
-          var counterString = zeroPaddedNumber(counter + 1);
-          callback(null, counterString);
-        }
-      });
-    }
-  });
+  const readCounterAsync = Promise.promisify(readCounter);
+  const writeCounterAsync = Promise.promisify(writeCounter);
+
+  readCounterAsync()
+    .then(counter => writeCounterAsync(counter + 1))
+    .then(data => callback(null, zeroPaddedNumber(counter + 1)))
+    .catch(err => console.log('error writing counter'));
+
+
+
+  // readCounter((err, counter) => {
+  //   if (err) {
+  //     callback(null, 0);
+  //   } else {
+  //     writeCounter(counter + 1, (err) => {
+  //       if (err) {
+  //         throw ('error writing counter');
+  //       } else {
+  //         var counterString = zeroPaddedNumber(counter + 1);
+  //         callback(null, counterString);
+  //       }
+  //     });
+  //   }
+  // });
   // counter = counter + 1;
   // return zeroPaddedNumber(counter);
 };
