@@ -52,30 +52,30 @@ const writeCounter = (count, callback) => {
 
 exports.getNextUniqueId = (callback) => {
 
-  const readCounterAsync = Promise.promisify(readCounter);
-  const writeCounterAsync = Promise.promisify(writeCounter);
+  // const readCounterAsync = Promise.promisify(readCounter);
+  // const writeCounterAsync = Promise.promisify(writeCounter);
 
-  readCounterAsync()
-    .then(counter => writeCounterAsync(counter + 1))
-    .then(data => callback(null, zeroPaddedNumber(counter + 1)))
-    .catch(err => console.log('error writing counter'));
+  // readCounterAsync()
+  //   .then(counter => writeCounterAsync(counter + 1))
+  //   .then(data => callback(null, zeroPaddedNumber(counter + 1)))
+  //   .catch(err => console.log('error writing counter'));
 
 
 
-  // readCounter((err, counter) => {
-  //   if (err) {
-  //     callback(null, 0);
-  //   } else {
-  //     writeCounter(counter + 1, (err) => {
-  //       if (err) {
-  //         throw ('error writing counter');
-  //       } else {
-  //         var counterString = zeroPaddedNumber(counter + 1);
-  //         callback(null, counterString);
-  //       }
-  //     });
-  //   }
-  // });
+  readCounter((err, counter) => {
+    if (err) {
+      callback(null, 0);
+    } else {
+      writeCounter(counter + 1, (err) => {
+        if (err) {
+          throw ('error writing counter');
+        } else {
+          var counterString = zeroPaddedNumber(counter + 1);
+          callback(null, counterString);
+        }
+      });
+    }
+  });
   // counter = counter + 1;
   // return zeroPaddedNumber(counter);
 };

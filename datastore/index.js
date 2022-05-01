@@ -18,12 +18,14 @@ Q2: for promisify, what's difference between using Promisify or not, since they 
 // Public API - Fix these CRUD functions ///////////////////////////////////////
 
 exports.create = (text, callback) => {
+
   counter.getNextUniqueId((err, id) => {
+    var filePath = exports.dataDir + `/${id}.txt`;
+    const date = (new Date()).toLocaleTimeString('en-US');
     if (err) {
       console.log('Cannot get unique id.');
     } else {
-      var filePath = exports.dataDir + `/${id}.txt`;
-      const date = (new Date()).toLocaleTimeString('en-US');
+
       text = text + '   Created_at:' + date;
       fs.writeFile(filePath, text, (err) => {
         if (err) {
